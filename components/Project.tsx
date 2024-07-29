@@ -1,11 +1,15 @@
 import { View, Text, TouchableOpacity, FlatList, TouchableHighlight } from 'react-native'
 import React from 'react'
-import { TaskType } from '@/types/types'
-import { ProjectType } from '@/types/types'
-export default function Project({ item }: { item: ProjectType }) {
+import { MainProjectType, TaskType } from '@/types/types'
+import { useRouter } from 'expo-router'
+export default function Project({ item }: { item: MainProjectType }) {
+    const route = useRouter()
+    const handleRoute = (item: string) => {
+        route.push(`/ProjectPages/${item}`)
+    }
     return (
-        <TouchableOpacity style={{
-            borderColor: "gray",
+        <TouchableOpacity onPress={() => { handleRoute(item._id) }} style={{
+            borderColor: `${item.color}`,
             borderWidth: 1,
             borderRadius: 10,
             paddingHorizontal: 30,
@@ -22,23 +26,23 @@ export default function Project({ item }: { item: ProjectType }) {
             }}>
                 <Text style={{
                     fontSize: 22,
-                    color: "white",
+                    color: `${item.color}`,
                     maxWidth: "80%",
                     fontWeight: "bold"
                 }}>{item.name}</Text>
                 <Text style={{
                     fontSize: 20,
-                    color: "white",
+                    color: `${item.color}`,
                     maxWidth: "80%",
-                }}>Members: {item.members}</Text>
+                }}>Members: {item.members.length}</Text>
             </View>
             <Text style={{
                 fontSize: 15,
-                color: "white",
+                color: `${item.color}`,
                 marginBottom: 10,
                 fontWeight: "bold"
-            }}>Uncompleted Tasks:</Text>
-            <FlatList data={item.UncompletedTasks} renderItem={({ item }) => {
+            }}>Creator: {item.leader.username}</Text>
+            {/* <FlatList data={item.UncompletedTasks} renderItem={({ item }) => {
                 return (
                     <View style={{
                         borderColor: "gray",
@@ -46,16 +50,14 @@ export default function Project({ item }: { item: ProjectType }) {
                         borderRadius: 10,
                         paddingHorizontal: 10,
                         paddingVertical: 10,
-
                         width: "100%",
                         marginBottom: 10,
-
                     }}>
-                        <Text style={{ color: "white", }}>{item.title}</Text>
-                        <Text style={{ color: "gray", }}>{item.endsIn}</Text>
+                        <Text style={{ color: "white" }}>{item.title}</Text>
+                        <Text style={{ color: "gray" }}>{item.endsIn}</Text>
                     </View>
                 )
-            }} />
+            }} /> */}
         </TouchableOpacity>
     )
 }

@@ -1,37 +1,34 @@
+import { Link, useLocalSearchParams } from 'expo-router'
+import { useProject } from '@/zustand/projectState'
 import { View, Text, FlatList, TextInput, TouchableOpacity, ScrollView, Alert, RefreshControl } from 'react-native'
 import React, { useCallback, useEffect, useState } from 'react'
 import { StyleSheet } from 'react-native'
 import { Handshake, SearchX, Send } from 'lucide-react-native';
 import DateTimePicker, { DateType } from 'react-native-ui-datepicker';
-import dayjs from 'dayjs';
 import Task from '@/components/Task';
-import { useTask } from '@/zustand/taskState';
-import { useAuth } from '@/zustand/auth';
-const Home = () => {
+import { useTask } from '@/zustand/taskState'
+import { useAuth } from '@/zustand/auth'
+import { TaskType } from '@/types/types'
+export default function ProjectDetails() {
     const [writingTask, setWriting] = useState<boolean>(false)
     const [taskTitle, setTaskTitle] = useState<string>("")
     const [startsIn, setStartsIn] = useState<DateType | undefined>(undefined)
     const [endsIn, setEndsIn] = useState<DateType | undefined>(undefined)
-    const user = useAuth(state => state.user)
-    const { addTask, getTasks, err, tasks } = useTask(state => state)
     const [completedTasksCounterRatio, setCompletedTasksCounterRatio] = useState<number>(0)
+    const { id } = useLocalSearchParams()
+    const { getSpecifecProject, singleProject, addTaskInProject, singleProjectTasks, isLeader } = useProject(state => state)
     useEffect(() => {
         let counter = 0
-        tasks.map((item) => {
-            if (item.completed == true) {
-                counter++
-            }
-        })
-        const ratio = (counter) / tasks.length;
-        setCompletedTasksCounterRatio(ratio * 100);
-    }, [tasks])
-    useEffect(() => {
-        console.log(user);
-        if (user != null) {
-            getTasks()
-            console.log("user");
+        if (singleProject?.tasks.length != 0) {
+            singleProject?.tasks.map((item) => {
+                if (item.completed == true) {
+                    counter++
+                }
+            })
         }
-    }, [user])
+        const ratio = singleProject?.tasks.length != undefined ? (counter) / singleProject?.tasks.length : 0
+        setCompletedTasksCounterRatio(ratio * 100);
+    }, [singleProject])
     useEffect(() => {
         if (taskTitle.length > 0) {
             setWriting(true)
@@ -48,7 +45,7 @@ const Home = () => {
                 startsIn: startsIn != undefined ? startsIn : null,
                 endsIn: endsIn != undefined ? endsIn : null
             }
-            addTask(task);
+            addTaskInProject(id, task);
             setTaskTitle('');
             setStartsIn(undefined)
             setEndsIn(undefined)
@@ -59,11 +56,16 @@ const Home = () => {
     }
     const [refreshing, setRefreshing] = React.useState(false);
     const onRefresh = React.useCallback(async () => {
-        console.log(user);
         setRefreshing(true);
-        await getTasks();
+        await getSpecifecProject(id);
         setRefreshing(false);
     }, []);
+    useEffect(() => {
+        getSpecifecProject(id)
+    }, [])
+    // useEffect(() => {
+    //     console.log("project", singleProject);
+    // }, [singleProject])
     return (
         <ScrollView
             refreshControl={
@@ -75,10 +77,60 @@ const Home = () => {
                 marginTop: 60,
                 color: "white",
                 fontWeight: "bold",
-                fontSize: 32
-            }}>Nice to see you <Text style={{
-                color: "#fcf7d2"
-            }}>{user?.username}</Text> <Handshake color={"#fcf7d2"} /></Text>
+                fontSize: 28
+            }}> Project name:
+                <Text style={{
+                    color: `${singleProject?.color}`
+                }}> {singleProject?.name}
+                </Text>
+            </Text>
+            <Text style={{
+                marginTop: 20,
+                color: "white",
+                fontSize: 20
+            }}> Project code:
+                <Text style={{
+                    color: `${singleProject?.color}`
+                }}> {singleProject?.passcode}
+                </Text>
+            </Text>
+            <View
+                style={{
+                    flexDirection: "row",
+                    justifyContent: "flex-end",
+                    alignItems: "center",
+                    width: "100%"
+                }}
+            >
+
+                {
+                    isLeader ? <TouchableOpacity style={{
+                        width: 120,
+                        backgroundColor: "red",
+                        paddingHorizontal: 2,
+                        paddingVertical: 5,
+                        borderRadius: 10,
+                        justifyContent: "center",
+                        alignItems: "center"
+                    }}>
+                        <Link href={"/Projects"}>
+                            <Text style={{ fontWeight: "600", color: "white", }}>Delete Project</Text>
+                        </Link>
+                    </TouchableOpacity> : <TouchableOpacity style={{
+                        width: 120,
+                        backgroundColor: "red",
+                        paddingHorizontal: 2,
+                        paddingVertical: 5,
+                        borderRadius: 10,
+                        justifyContent: "center",
+                        alignItems: "center"
+                    }}>
+                        <Link href={"/Projects"}>
+                            <Text style={{ fontWeight: "600", color: "white", }}>Leave Project</Text>
+                        </Link>
+                    </TouchableOpacity>
+                }
+            </View>
             <View style={
                 {
                     width: "100%",
@@ -86,7 +138,7 @@ const Home = () => {
                     paddingVertical: 20,
                     marginTop: 20,
                     borderWidth: 1,
-                    borderColor: "gray",
+                    borderColor: `${singleProject?.color}`,
                     borderRadius: 10,
                 }
             }>
@@ -94,13 +146,13 @@ const Home = () => {
                     color: "white",
                     fontWeight: "600",
                     fontSize: 18
-                }}>Daily<Text style={{
-                    color: "#fcf7d2"
-                }}>Tasks</Text></Text>
+                }}>Project<Text style={{
+                    color: `${singleProject?.color}`
+                }}> progress</Text></Text>
                 <View style={{
                     width: "100%",
                     margin: "auto",
-                    borderColor: "white",
+                    borderColor: `${singleProject?.color}`,
                     borderWidth: 1,
                     borderRadius: 10,
                     height: 15,
@@ -109,7 +161,7 @@ const Home = () => {
                 }}>
                     <View style={{
                         width: `${completedTasksCounterRatio}%`,
-                        backgroundColor: "#fcf7d2",
+                        backgroundColor: `${singleProject?.color}`,
                         height: 15,
                     }}>
                     </View>
@@ -117,7 +169,7 @@ const Home = () => {
             </View>
             <View style={{ display: "flex", marginVertical: 20, justifyContent: "center", alignItems: "center", gap: 5, flexDirection: "row", width: "100%", marginBottom: 10 }}>
                 <TextInput style={{
-                    borderColor: "gray",
+                    borderColor: `${singleProject?.color}`,
                     borderWidth: 1,
                     borderRadius: 10,
                     fontSize: 15,
@@ -128,12 +180,12 @@ const Home = () => {
                 }}
                     onChangeText={setTaskTitle}
                     value={taskTitle}
-                    placeholder='Enter your individual task' placeholderTextColor={"gray"}
+                    placeholder='Enter a task' placeholderTextColor={"gray"}
                 />
                 <TouchableOpacity
                     onPress={addTaskFunc}
                     style={{
-                        backgroundColor: "#fcf7d2",
+                        backgroundColor: `${singleProject?.color}`,
                         paddingHorizontal: 15,
                         paddingVertical: 13,
                         borderRadius: 10,
@@ -165,13 +217,15 @@ const Home = () => {
                             todayTextStyle={{ color: 'white' }}
                             timePickerTextStyle={{ color: 'white' }} headerButtonColor='white'
                             weekDaysTextStyle={{ color: 'white' }}
+                            selectedItemColor={singleProject?.color}
+                            selectedTextStyle={{ color: '#191b26' }}
+
                         />
                     </View>
                 </View>
             }
             <FlatList
                 scrollEnabled={false}
-
                 ListEmptyComponent={
                     () => {
                         return (
@@ -188,12 +242,12 @@ const Home = () => {
                                     fontWeight: "600",
                                     fontSize: 18,
                                     textAlign: "center"
-                                }}>{err}</Text>
+                                }}>No Tasks created yet </Text>
                             </View>
                         )
                     }
                 }
-                style={{}} data={tasks} renderItem={({ item }) => {
+                style={{}} data={singleProjectTasks} renderItem={({ item }) => {
                     return (
                         <Task item={item} />
                     )
@@ -201,8 +255,6 @@ const Home = () => {
         </ScrollView>
     )
 }
-
-export default Home
 
 const style = StyleSheet.create({
     container: {

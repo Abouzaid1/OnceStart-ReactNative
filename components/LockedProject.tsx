@@ -1,9 +1,8 @@
 import { View, Text, TouchableOpacity, FlatList, TouchableHighlight } from 'react-native'
 import React from 'react'
-import { TaskType } from '@/types/types'
+import { LockedProjectType, TaskType } from '@/types/types'
 import { Lock } from 'lucide-react-native'
-import { ProjectType } from '@/types/types'
-export default function LockedProject({ item }: { item: ProjectType }) {
+export default function LockedProject({ item }: { item: LockedProjectType }) {
     return (
         <TouchableOpacity style={{
             borderColor: "gray",

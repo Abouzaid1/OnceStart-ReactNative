@@ -83,7 +83,7 @@ const style = StyleSheet.create({
         paddingHorizontal: 20,
         paddingVertical: 20,
         fontSize: 20,
-        borderRadius: 20,
+        borderRadius: 10,
         color: "#ffffff",
     },
     btn: {
@@ -93,7 +93,7 @@ const style = StyleSheet.create({
         marginTop: 40,
         paddingHorizontal: 40,
         paddingVertical: 15,
-        borderRadius: 20,
+        borderRadius: 10,
         alignItems: "center",
         justifyContent: "center",
     }

@@ -1,44 +1,36 @@
 import { View, Text, FlatList, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { StyleSheet } from 'react-native'
-import { TaskType } from '@/types/types'
 import LockedProject from '@/components/LockedProject'
+import { Search, SearchX } from 'lucide-react-native'
+import { api } from '@/apis'
+import axios from 'axios'
+import { useAuth } from '@/zustand/auth'
 import { LockedProjectType } from '@/types/types'
 const SearchForProject = () => {
     const [searchQuery, setSearchQuery] = useState<string>("")
-    const [filteredData, setFilteredData] = useState<LockedProjectType[]>()
-    const data = [{
-        id: 1, name: "Design", members: 0, UncompletedTasks: [
-            { id: 1, title: "Create wireframes", completed: true, endsIn: "2022-12-15", startsIn: null },
-            { id: 2, title: "Design mockups", completed: false, endsIn: "2022-12-20", startsIn: null },
-            { id: 3, title: "Finalize design specs", completed: false, endsIn: "2022-12-25", startsIn: null },
-        ]
-    }, {
-        id: 2, name: "Design", members: 0, UncompletedTasks: [
-            { id: 1, title: "Create wireframes", completed: true, endsIn: "2022-12-15", startsIn: null },
-            { id: 2, title: "Design mockups", completed: false, endsIn: "2022-12-20", startsIn: null },
-            { id: 3, title: "Finalize design specs", completed: false, endsIn: "2022-12-25", startsIn: null },
-        ]
-    }, {
-        id: 3, name: "Design", members: 0, UncompletedTasks: [
-            { id: 1, title: "Create wireframes", completed: true, endsIn: "2022-12-15", startsIn: null },
-            { id: 2, title: "Design mockups", completed: false, endsIn: "2022-12-20", startsIn: null },
-            { id: 3, title: "Finalize design specs", completed: false, endsIn: "2022-12-25", startsIn: null },
-        ]
-    },
-    {
-        id: 4, name: "Project", members: 0, UncompletedTasks: [
-            { id: 1, title: "Create wireframes", completed: true, endsIn: "2022-12-15", startsIn: null },
-            { id: 2, title: "Design mockups", completed: false, endsIn: "2022-12-20", startsIn: null },
-            { id: 3, title: "Finalize design specs", completed: false, endsIn: "2022-12-25", startsIn: null },
-        ]
-    },]
-    useEffect(() => {
-        const filtered: LockedProjectType[] = data.filter(project => project.name.toLowerCase().includes(searchQuery.toLowerCase()))
-        if (filtered != undefined) {
-            setFilteredData(filtered)
+    const [projectsFound, setProjectFound] = useState<LockedProjectType[]>()
+    const { user } = useAuth(state => state)
+    const searchHandler = () => {
+        console.log(user);
+        if (searchQuery != "") {
+            axios.get(api + `/projects/search?search=${searchQuery}`, { headers: { 'Authorization': user?.token } })
+                .then(response => setProjectFound(response.data.projects))
+                .then(data => {
+                    console.log(data)
+                })
+                .catch(error => {
+                    console.log(error);
+
+                })
         }
-    }, [searchQuery])
+    }
+    // useEffect(() => {
+    //     const filtered: LockedProjectType[] = data.filter(project => project.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    //     if (filtered != undefined) {
+    //         setFilteredData(filtered)
+    //     }
+    // }, [searchQuery])
     return (
         <View style={style.container}>
             <Text style={{
@@ -77,8 +69,8 @@ const SearchForProject = () => {
                 }}>
                     <TextInput
                         style={{
-                            width: "100%",
-                            height: 40,
+                            width: "80%",
+                            height: 50,
                             borderColor: 'gray',
                             borderWidth: 1,
                             borderRadius: 10,
@@ -90,15 +82,48 @@ const SearchForProject = () => {
                         placeholder="Search for a project"
                         placeholderTextColor={"gray"}
                     />
-
+                    <TouchableOpacity
+                        onPress={searchHandler}
+                        style={{
+                            backgroundColor: "#fcf7d2",
+                            paddingHorizontal: 15,
+                            paddingVertical: 13,
+                            borderRadius: 10,
+                            alignItems: "center",
+                            justifyContent: "center"
+                        }}>
+                        <Search color={"black"} />
+                    </TouchableOpacity>
                 </View>
             </View>
-            <FlatList style={{}} data={filteredData ? filteredData : data} renderItem={({ item }) => {
-                return (
+            <FlatList style={{}} data={projectsFound}
+                ListEmptyComponent={
+                    () => {
+                        return (
+                            <View style={{
+                                flexDirection: "column",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                gap: 50,
+                                height: 200
+                            }}>
+                                <SearchX size={100} color={"white"} />
+                                <Text style={{
+                                    color: "white",
+                                    fontWeight: "600",
+                                    fontSize: 18,
+                                    textAlign: "center"
+                                }}>Search for a project</Text>
+                            </View>
+                        )
+                    }
+                }
+                renderItem={({ item }) => {
+                    return (
 
-                    <LockedProject item={item} />
-                )
-            }} />
+                        <LockedProject item={item} />
+                    )
+                }} />
         </View >
     )
 }

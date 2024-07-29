@@ -1,32 +1,30 @@
-import { View, Text, FlatList, TextInput, TouchableOpacity, ScrollView } from 'react-native'
-import React, { useState } from 'react'
+import { View, Text, FlatList, TextInput, TouchableOpacity, ScrollView, RefreshControl } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import { StyleSheet } from 'react-native'
 import { Handshake, Send } from 'lucide-react-native';
 import Task from '@/components/Task';
 import Project from '@/components/Project';
+import { useProject } from '@/zustand/projectState';
+import { Link } from 'expo-router';
 const Projects = () => {
-
-    const data = [{
-        id: 1, name: "Design", members: 0, UncompletedTasks: [
-            { id: 1, title: "Create wireframes", completed: true, endsIn: "2022-12-15", startsIn: null },
-            { id: 2, title: "Design mockups", completed: false, endsIn: "2022-12-20", startsIn: null },
-            { id: 3, title: "Finalize design specs", completed: false, endsIn: "2022-12-25", startsIn: null },
-        ]
-    }, {
-        id: 2, name: "Design", members: 0, UncompletedTasks: [
-            { id: 1, title: "Create wireframes", completed: true, endsIn: "2022-12-15", startsIn: null },
-            { id: 2, title: "Design mockups", completed: false, endsIn: "2022-12-20", startsIn: null },
-            { id: 3, title: "Finalize design specs", completed: false, endsIn: "2022-12-25", startsIn: null },
-        ]
-    }, {
-        id: 3, name: "Design", members: 0, UncompletedTasks: [
-            { id: 1, title: "Create wireframes", completed: true, endsIn: "2022-12-15", startsIn: null },
-            { id: 2, title: "Design mockups", completed: false, endsIn: "2022-12-20", startsIn: null },
-            { id: 3, title: "Finalize design specs", completed: false, endsIn: "2022-12-25", startsIn: null },
-        ]
-    }]
+    const { getProjects, projects } = useProject(state => state)
+    useEffect(() => {
+        if (projects.length == 0) {
+            getProjects()
+        }
+    }, [])
+    const [refreshing, setRefreshing] = React.useState(false);
+    const onRefresh = React.useCallback(async () => {
+        setRefreshing(true);
+        getProjects()
+        setRefreshing(false);
+    }, []);
     return (
-        <View style={style.container}>
+        <ScrollView style={style.container}
+            refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
+        >
             <Text style={{
                 marginTop: 60,
                 color: "white",
@@ -66,15 +64,19 @@ const Projects = () => {
                     justifyContent: "center",
                     alignItems: "center"
                 }}>
-                    <Text style={{ fontWeight: "600" }}>Create Project</Text>
+                    <Link href={"/ProjectPages/CreateProject"}>
+                        <Text style={{ fontWeight: "600" }}>Create Project</Text>
+                    </Link>
                 </TouchableOpacity>
             </View>
-            <FlatList style={{}} data={data} renderItem={({ item }) => {
-                return (
-                    <Project item={item} />
-                )
-            }} />
-        </View >
+            <FlatList style={{}} data={projects}
+                scrollEnabled={false}
+                renderItem={({ item }) => {
+                    return (
+                        <Project item={item} />
+                    )
+                }} />
+        </ScrollView >
     )
 }
 

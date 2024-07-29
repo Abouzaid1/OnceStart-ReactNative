@@ -1,7 +1,16 @@
-import { View, Text, TextInput } from 'react-native'
+import { View, Text, TextInput, TouchableOpacity } from 'react-native'
 import React from 'react'
-
+import { LogOut } from 'lucide-react-native'
+import { useAuth } from '@/zustand/auth'
+import { useRouter } from 'expo-router'
 const Settings = () => {
+    const logout = useAuth(state => state.logout)
+    const route = useRouter()
+    const logoutFunc = () => {
+        logout()
+        route.dismissAll()
+        route.replace('/(auth)/login');
+    }
     return (
         <View style={{
             flex: 1,
@@ -9,12 +18,23 @@ const Settings = () => {
             paddingTop: 10,
             paddingHorizontal: 20,
         }}>
-            <Text style={{
+            <View style={{
                 marginTop: 60,
-                color: "white",
-                fontWeight: "bold",
-                fontSize: 32
-            }}>Setting</Text>
+                width: "100%",
+                justifyContent: "space-between",
+                alignItems: "center",
+                flexDirection: "row"
+            }}>
+                <Text style={{
+                    color: "white",
+                    fontWeight: "bold",
+                    fontSize: 32
+                }}>Setting</Text>
+                <TouchableOpacity onPress={logoutFunc}>
+
+                    <LogOut size={35} color={"red"} />
+                </TouchableOpacity>
+            </View>
             <View style={{
                 width: "100%",
                 height: 1,

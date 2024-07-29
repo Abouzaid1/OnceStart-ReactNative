@@ -4,6 +4,7 @@ import { StyleSheet } from 'react-native'
 import { Link } from 'expo-router'
 import { useAuth } from '@/zustand/auth'
 import { useRouter } from 'expo-router'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 export default function login() {
     const route = useRouter()
     const [username, setUsername] = useState<string>("")
@@ -11,15 +12,26 @@ export default function login() {
     const loginFunc = useAuth(state => state.login)
     const response = useAuth(state => state.response)
     const err = useAuth(state => state.err)
+    const getUserFromStorage = useAuth(state => state.getUserFromStorage)
     const user = useAuth(state => state.user)
-    useEffect(() => {
-        if (user?.token) {
-            route.replace('/(tabs)/Home');
+    const checkSignIn = async () => {
+        const jsonValue = await AsyncStorage.getItem('me');
+        const me = jsonValue != null ? JSON.parse(jsonValue) : null;
+        if (me != null) {
+            getUserFromStorage(me)
+            console.log(me);
+            route.push('/(tabs)/Home');
         }
-    }, [user, route]);
-    const sendData = () => {
+    }
+    useEffect(() => {
+        checkSignIn()
+    }, [])
+    const sendData = async () => {
         if (username != "" || password != "") {
             loginFunc(username, password)
+
+        } else {
+            Alert.alert("Error", "You must provide a username and password")
         }
     }
     useEffect(() => {
@@ -79,7 +91,7 @@ const style = StyleSheet.create({
         paddingHorizontal: 20,
         paddingVertical: 20,
         fontSize: 20,
-        borderRadius: 20,
+        borderRadius: 10,
         color: "#ffffff",
     },
     btn: {
@@ -89,7 +101,7 @@ const style = StyleSheet.create({
         marginTop: 40,
         paddingHorizontal: 40,
         paddingVertical: 15,
-        borderRadius: 20,
+        borderRadius: 10,
         alignItems: "center",
         justifyContent: "center",
     },
@@ -100,7 +112,7 @@ const style = StyleSheet.create({
         marginTop: 20,
         paddingHorizontal: 40,
         paddingVertical: 15,
-        borderRadius: 20,
+        borderRadius: 10,
         alignItems: "center",
         justifyContent: "center",
     }

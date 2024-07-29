@@ -1,8 +1,20 @@
 import { View, Text, TouchableOpacity } from 'react-native'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Delete } from 'lucide-react-native'
 import { TaskType } from '@/types/types'
+import { useTask } from '@/zustand/taskState'
 export default function Task({ item }: { item: TaskType }) {
+    const deleteTask = useTask(state => state.deleteTask)
+    const editTask = useTask(state => state.editTask)
+    const formatDate = (dateString: any) => {
+        return new Date(dateString).toLocaleDateString(undefined);
+    };
+    const deleteFunc = (id: string) => {
+        deleteTask(id)
+    }
+    const checkFunc = (id: string, edit: any) => {
+        editTask(id, edit)
+    }
     return (
         <View style={{
             borderColor: "gray",
@@ -35,10 +47,13 @@ export default function Task({ item }: { item: TaskType }) {
                     }}>
                         <Text style={{
                             color: "gray"
-                        }}>Starts In: {item.startsIn}</Text>
+                        }}>Created at: {formatDate(item.createdAt)}</Text>
                         <Text style={{
                             color: "gray"
-                        }}>Starts In: {item.endsIn}</Text>
+                        }}>Starts In: {item.startsIn ? formatDate(item.startsIn) : "Not set"}</Text>
+                        <Text style={{
+                            color: "gray"
+                        }}>Ends In: {item.endsIn ? formatDate(item.endsIn) : "Not set"}</Text>
                     </View>
                 </View>
                 <View style={{
@@ -46,26 +61,30 @@ export default function Task({ item }: { item: TaskType }) {
                     gap: 10
                 }}>
 
-                    <TouchableOpacity style={{
-                        marginRight: 10,
-                        width: 40,
-                        height: 40,
-                        justifyContent: "center",
-                        alignItems: "center",
-                        borderRadius: 10,
-                        borderColor: "#fcf7d2",
-                        borderWidth: 1,
-                        backgroundColor: item.completed ? "#fcf7d2" : "transparent"
-                    }}>
+                    <TouchableOpacity
+                        onPress={() => { checkFunc(item._id, { completed: !item.completed }) }}
+                        style={{
+                            marginRight: 10,
+                            width: 40,
+                            height: 40,
+                            justifyContent: "center",
+                            alignItems: "center",
+                            borderRadius: 10,
+                            borderColor: "#fcf7d2",
+                            borderWidth: 1,
+                            backgroundColor: item.completed ? "#fcf7d2" : "transparent"
+                        }}>
 
                     </TouchableOpacity>
-                    <TouchableOpacity style={{
-                        marginRight: 10,
-                        width: 40,
-                        height: 40,
-                        justifyContent: "center",
-                        alignItems: "center",
-                    }}>
+                    <TouchableOpacity
+                        onPress={() => { deleteFunc(item._id) }}
+                        style={{
+                            marginRight: 10,
+                            width: 40,
+                            height: 40,
+                            justifyContent: "center",
+                            alignItems: "center",
+                        }}>
                         <Delete color={"#fcf7d2"}></Delete>
                     </TouchableOpacity>
                 </View>
