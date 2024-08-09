@@ -1,11 +1,15 @@
 import { View, Text } from 'react-native'
 import React, { useEffect } from 'react'
 import { Tabs } from 'expo-router'
-import { House, Projector, Search, Settings, List, GroupIcon } from 'lucide-react-native'
+import { House, Projector, Search, Settings, List, GroupIcon, PersonStandingIcon, User, DiamondPlus } from 'lucide-react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useRouter } from 'expo-router'
+import { Image } from 'react-native'
+import { useAuth } from '@/zustand/auth'
+import { api, uploadsApi } from '@/apis'
 export default function layout() {
     const route = useRouter()
+    const { user } = useAuth()
     const checkSignIn = async () => {
         const me = await AsyncStorage.getItem('me');
         if (me == null) {
@@ -37,6 +41,13 @@ export default function layout() {
                     )
                 }
             }} />
+            <Tabs.Screen name='Posts' options={{
+                headerShown: false, tabBarIconStyle: { marginBottom: 20 }, tabBarIcon: ({ focused }) => {
+                    return (
+                        <DiamondPlus size={40} color={focused ? "orange" : "grey"} />
+                    )
+                }
+            }} />
             <Tabs.Screen name='SearchForProject' options={{
                 headerShown: false, title: "Search", tabBarIcon: ({ focused }) => {
                     return (
@@ -44,10 +55,11 @@ export default function layout() {
                     )
                 }
             }} />
-            <Tabs.Screen name='Settings' options={{
-                headerShown: false, tabBarIcon: ({ focused }) => {
+            <Tabs.Screen name='Profile' options={{
+                headerShown: false, tabBarIconStyle: { marginBottom: 0 }, tabBarIcon: ({ focused }) => {
                     return (
-                        <Settings color={focused ? "white" : "gray"} />
+                        <Image source={{ uri: uploadsApi + `${user?.photo}` }} style={{ width: 30, height: 30, borderRadius: 50 }} />
+                        // <User color={focused ? "white" : "gray"} />
                     )
                 }
             }} />

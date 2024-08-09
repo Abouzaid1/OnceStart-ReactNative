@@ -17,6 +17,8 @@ export default function login() {
     const checkSignIn = async () => {
         const jsonValue = await AsyncStorage.getItem('me');
         const me = jsonValue != null ? JSON.parse(jsonValue) : null;
+        console.log(me);
+
         if (me != null) {
             getUserFromStorage(me)
             console.log(me);

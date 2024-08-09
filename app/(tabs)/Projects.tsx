@@ -1,7 +1,7 @@
 import { View, Text, FlatList, TextInput, TouchableOpacity, ScrollView, RefreshControl } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { StyleSheet } from 'react-native'
-import { Handshake, Send } from 'lucide-react-native';
+import { Handshake, SearchX, Send } from 'lucide-react-native';
 import Task from '@/components/Task';
 import Project from '@/components/Project';
 import { useProject } from '@/zustand/projectState';
@@ -9,9 +9,7 @@ import { Link } from 'expo-router';
 const Projects = () => {
     const { getProjects, projects } = useProject(state => state)
     useEffect(() => {
-        if (projects.length == 0) {
-            getProjects()
-        }
+        getProjects()
     }, [])
     const [refreshing, setRefreshing] = React.useState(false);
     const onRefresh = React.useCallback(async () => {
@@ -75,7 +73,29 @@ const Projects = () => {
                     return (
                         <Project item={item} />
                     )
-                }} />
+                }}
+                ListEmptyComponent={
+                    () => {
+                        return (
+                            <View style={{
+                                flexDirection: "column",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                gap: 50,
+                                height: 200
+                            }}>
+                                <SearchX size={100} color={"white"} />
+                                <Text style={{
+                                    color: "white",
+                                    fontWeight: "600",
+                                    fontSize: 18,
+                                    textAlign: "center"
+                                }}>No projects found</Text>
+                            </View>
+                        )
+                    }
+                } />
+
         </ScrollView >
     )
 }

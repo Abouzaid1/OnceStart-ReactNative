@@ -1,7 +1,7 @@
 import { View, Text, FlatList, TextInput, TouchableOpacity, ScrollView, Alert, RefreshControl } from 'react-native'
 import React, { useCallback, useEffect, useState } from 'react'
 import { StyleSheet } from 'react-native'
-import { Handshake, SearchX, Send } from 'lucide-react-native';
+import { CircleSlash, Handshake, SearchX, Send } from 'lucide-react-native';
 import DateTimePicker, { DateType } from 'react-native-ui-datepicker';
 import dayjs from 'dayjs';
 import Task from '@/components/Task';
@@ -176,19 +176,20 @@ const Home = () => {
                     () => {
                         return (
                             <View style={{
+
                                 flexDirection: "column",
                                 justifyContent: "center",
                                 alignItems: "center",
                                 gap: 50,
-                                height: 200
+                                height: 400
                             }}>
-                                <SearchX size={100} color={"white"} />
+                                <CircleSlash size={100} color={"white"} />
                                 <Text style={{
                                     color: "white",
                                     fontWeight: "600",
                                     fontSize: 18,
                                     textAlign: "center"
-                                }}>{err}</Text>
+                                }}>Search for a project</Text>
                             </View>
                         )
                     }

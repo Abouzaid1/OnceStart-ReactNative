@@ -4,6 +4,7 @@ import { api } from '@/apis'
 import { TaskSent, TaskType } from '@/types/types'
 import { useAuth } from './auth'
 import { useProject } from './projectState'
+import { Alert } from 'react-native'
 type TaskState = {
     tasks: TaskType[],
     response: AxiosResponse | null,
@@ -24,6 +25,7 @@ export const useTask = create<TaskState>((set) => ({
             const response = await axios.get(api + '/tasks', { headers: { 'Authorization': user?.token } })
             set(() => ({ response: response, tasks: response.data.tasks }));
         } catch (e: any) {
+            Alert.alert("Wait!", e.response.data.message)
             const msg = e.response.data.message
             set(() => ({ err: msg }));
         }
@@ -37,6 +39,7 @@ export const useTask = create<TaskState>((set) => ({
             const newTasks = [...tasks, response.data.newTask];
             set(() => ({ tasks: newTasks }));
         } catch (e: any) {
+            Alert.alert("Wait!", e.response.data.message)
             set(() => ({ err: e.response.data.message }));
         }
     },
@@ -54,6 +57,7 @@ export const useTask = create<TaskState>((set) => ({
                 useProject.setState(() => ({ singleProjectTasks: singleProjectTasksUpdate }));
             }
         } catch (e: any) {
+            Alert.alert("Wait!", e.response.data.message)
             set(() => ({ err: e.response.data.message }));
         }
     },
@@ -70,21 +74,18 @@ export const useTask = create<TaskState>((set) => ({
 
             set(() => ({ tasks: updatedTasks }));
             // Update tasks in the single project state
-
             const singleProjectTasks = useProject.getState().singleProjectTasks;
             if (singleProjectTasks.length > 0) {
-
-                console.log(singleProjectTasks);
-
                 const singleProjectTasksUpdate = singleProjectTasks.map((item) =>
                     item._id === updatedTask._id ? { ...item, ...updatedTask } : item
                 );
+                console.log("Single project tasks updated");
+
                 useProject.setState(() => ({ singleProjectTasks: singleProjectTasksUpdate }));
             }
 
         } catch (e: any) {
-            console.log(e);
-
+            Alert.alert("Wait!", e.response.data.message)
             set(() => ({ err: e.response.data.message }));
         }
     }

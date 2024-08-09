@@ -1,38 +1,32 @@
-import { View, Text, FlatList, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import { View, FlatList, Text, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native'
+import React, { useEffect, useRef, useState } from 'react'
 import { StyleSheet } from 'react-native'
 import LockedProject from '@/components/LockedProject'
-import { Search, SearchX } from 'lucide-react-native'
+import { Search, SearchX, Check, Loader, CircleSlash } from 'lucide-react-native'
 import { api } from '@/apis'
 import axios from 'axios'
 import { useAuth } from '@/zustand/auth'
 import { LockedProjectType } from '@/types/types'
+import { useProject } from '@/zustand/projectState'
+import { ActionSheet } from 'react-native-ui-lib'
 const SearchForProject = () => {
+
     const [searchQuery, setSearchQuery] = useState<string>("")
     const [projectsFound, setProjectFound] = useState<LockedProjectType[]>()
     const { user } = useAuth(state => state)
+
     const searchHandler = () => {
-        console.log(user);
         if (searchQuery != "") {
             axios.get(api + `/projects/search?search=${searchQuery}`, { headers: { 'Authorization': user?.token } })
                 .then(response => setProjectFound(response.data.projects))
-                .then(data => {
-                    console.log(data)
-                })
-                .catch(error => {
-                    console.log(error);
-
+                .catch(e => {
+                    Alert.alert("Wait!", e.response.data.message)
                 })
         }
     }
-    // useEffect(() => {
-    //     const filtered: LockedProjectType[] = data.filter(project => project.name.toLowerCase().includes(searchQuery.toLowerCase()))
-    //     if (filtered != undefined) {
-    //         setFilteredData(filtered)
-    //     }
-    // }, [searchQuery])
     return (
         <View style={style.container}>
+
             <Text style={{
                 marginTop: 60,
                 color: "white",
@@ -101,13 +95,14 @@ const SearchForProject = () => {
                     () => {
                         return (
                             <View style={{
+
                                 flexDirection: "column",
                                 justifyContent: "center",
                                 alignItems: "center",
                                 gap: 50,
-                                height: 200
+                                height: 400
                             }}>
-                                <SearchX size={100} color={"white"} />
+                                <CircleSlash size={100} color={"white"} />
                                 <Text style={{
                                     color: "white",
                                     fontWeight: "600",
@@ -120,7 +115,6 @@ const SearchForProject = () => {
                 }
                 renderItem={({ item }) => {
                     return (
-
                         <LockedProject item={item} />
                     )
                 }} />
