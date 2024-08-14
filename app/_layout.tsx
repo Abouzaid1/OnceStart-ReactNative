@@ -7,11 +7,14 @@ import 'react-native-reanimated';
 import { StatusBar } from 'expo-status-bar';
 import { PaperProvider } from 'react-native-paper';
 import * as NavigationBar from 'expo-navigation-bar';
+import { Platform } from 'react-native';
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  NavigationBar.setBackgroundColorAsync("black");
+  if (Platform.OS == 'android') {
+    NavigationBar.setBackgroundColorAsync("black");
+  }
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });

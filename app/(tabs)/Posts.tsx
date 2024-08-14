@@ -11,11 +11,11 @@ export default function Posts() {
         getPosts()
     }, [])
     const [refreshing, setRefreshing] = React.useState(false);
-    const onRefresh = React.useCallback(async () => {
+    const onRefresh = async () => {
         setRefreshing(true);
         getPosts()
         setRefreshing(false);
-    }, []);
+    };
     return (
         <ScrollView
             refreshControl={

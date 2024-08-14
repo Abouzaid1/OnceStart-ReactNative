@@ -35,6 +35,8 @@ export default function login() {
         } else {
             Alert.alert("Error", "You must provide a username and password")
         }
+        setUsername("")
+        setPassword("")
     }
     useEffect(() => {
         if (err != null) {

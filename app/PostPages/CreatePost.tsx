@@ -10,10 +10,9 @@ import { usePost } from '@/zustand/post';
 import { PostType } from '@/types/types';
 export default function CreatePost() {
     const route = useRouter()
-    const [title, setTitle] = useState<string>("")
     const [content, setContent] = useState<string>("")
     const [photo, setPhoto] = useState<any>();
-    const { addPost } = usePost()
+    const { addPost, getPosts } = usePost()
     const pickImage = async () => {
         // No permissions request is necessary for launching the image library
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -22,9 +21,6 @@ export default function CreatePost() {
             aspect: [4, 3],
             quality: 1,
         });
-
-        console.log(result);
-
         if (!result.canceled) {
             setPhoto(result.assets);
             console.log(photo);
@@ -32,16 +28,18 @@ export default function CreatePost() {
         }
     };
     const addPostHandler = () => {
-        if (title != "" || content != "") {
-            addPost(title, content, photo)
+        if (content != "") {
+            addPost(content, photo)
         } else (
             Alert.alert("Error", "Please fill all fields")
         )
+        getPosts()
+        route.back();
     }
     return (
         <View style={style.containerChild}>
 
-            <TextInput value={title} onChangeText={(e) => { setTitle(e) }} placeholder='Title' placeholderTextColor={"gray"} style={style.input} />
+
             {/* <TextInput placeholder='Project Main color' placeholderTextColor={"gray"} style={style.input} /> */}
 
             <TextInput value={content} onChangeText={(e) => { setContent(e) }} placeholder='Content' placeholderTextColor={"gray"} style={{

@@ -50,7 +50,7 @@ export type PostType = {
     content: string,
     author: UserType,
     likes: UserType[] | [],
-    photos: string[] | null,
+    photo: any[] | null,
     comment: CommentType[] | []
 }
 

@@ -24,6 +24,10 @@ export default function signup() {
                 signUp(username, email, password, photosend)
             }
         }
+        setUsername("")
+        setPassword("")
+        setEmail("")
+        setRepeatedPassword("")
     }
     const checkSignIn = async () => {
         const jsonValue = await AsyncStorage.getItem('me');

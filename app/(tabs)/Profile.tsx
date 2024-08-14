@@ -1,8 +1,9 @@
-import { View, Text, TextInput, TouchableOpacity } from 'react-native'
+import { View, Text, TextInput, TouchableOpacity, Image } from 'react-native'
 import React from 'react'
 import { LogOut } from 'lucide-react-native'
 import { useAuth } from '@/zustand/auth'
 import { useRouter } from 'expo-router'
+import { uploadsApi } from '@/apis'
 const Profile = () => {
     const { logout, user } = useAuth(state => state)
 
@@ -43,6 +44,12 @@ const Profile = () => {
                 marginVertical: 20
             }}>
 
+            </View>
+            <View style={{
+                width: "100%",
+
+            }}>
+                <Image source={{ uri: uploadsApi + user?.photo }} style={{ width: 100, height: 100, margin: "auto", borderRadius: 50 }} />
             </View>
             <View>
                 <Text style={{

@@ -3,6 +3,7 @@ import axios, { AxiosResponse } from 'axios'
 import { api } from '@/apis'
 import { Alert, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as FileSystem from 'expo-file-system';
 interface AuthState {
     user: { username: string; password: string, token: string, email: string, photo: string } | null
     err: string | null
@@ -41,21 +42,24 @@ export const useAuth = create<AuthState>((set) => ({
             formData.append('username', username);
             formData.append('email', email);
             formData.append('password', password);
-            const file: any = {
-                uri: Platform.OS === 'ios' ? photo.uri.replace('file://', '') : photo.uri,
-                name: photo.fileName,
-                type: 'image/jpeg',
-            };
-            // Append photo if it exists
+
             if (photo) {
-                formData.append('photo', file); // Name the file appropriately
+                const blob = await uriToBlob(photo.uri);
+                const file: any = {
+                    uri: Platform.OS === 'ios' ? photo.uri.replace('file://', '') : photo.uri,
+                    name: photo.fileName || `photo_${Date.now()}.jpg`,
+                    type: photo.mimeType || 'image/jpeg',
+                };
+                formData.append('photo', file);
             }
+
             const res = await axios.post(`${api}/auth/signup`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-            set(() => ({ response: res, err: null, user: res.data }));
+
+            set(() => ({ response: res, err: null, user: res.data.user }));
         } catch (e: any) {
             const msg = e.response?.data?.message;
             set(() => ({ response: null, err: msg }));
