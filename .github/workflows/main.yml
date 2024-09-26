@@ -1,0 +1,37 @@
+name: iOS Build
+
+on:
+  push:
+    branches:
+      - main  # Trigger the build when code is pushed to the main branch
+  pull_request:
+    branches:
+      - main  # Trigger the build on pull requests to the main branch
+
+jobs:
+  build:
+    runs-on: macos-latest  # macOS runner to build iOS apps
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3  # Checkout your repository code
+
+      - name: Set up Xcode
+        run: sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer  # Ensure Xcode is selected
+
+      - name: Install dependencies
+        run: |
+          brew install cocoapods  # Install CocoaPods if you're using it
+          pod install             # Install pods
+
+      - name: Build the iOS app
+        run: |
+          xcodebuild -workspace YourApp.xcworkspace -scheme YourApp -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 12,OS=15.0' clean build  # Adjust according to your setup
+
+      - name: Archive the iOS app
+        run: |
+          xcodebuild -workspace YourApp.xcworkspace -scheme YourApp -archivePath $PWD/build/YourApp.xcarchive archive
+
+      - name: Export the .ipa file
+        run: |
+          xcodebuild -exportArchive -archivePath $PWD/build/YourApp.xcarchive -exportOptionsPlist ExportOptions.plist -exportPath $PWD/build
